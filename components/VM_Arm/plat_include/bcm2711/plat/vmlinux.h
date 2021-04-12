@@ -10,7 +10,8 @@
 
 static const int linux_pt_irqs[] = {};
 
-static const int free_plat_interrupts[] =  { 50 + IRQ_SPI_OFFSET };
+// TODO: define free interrupts somehow, -1 means no free interrupts
+static const int free_plat_interrupts[] =  { -1 };
 static const char *plat_keep_devices[] = {};
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {};
