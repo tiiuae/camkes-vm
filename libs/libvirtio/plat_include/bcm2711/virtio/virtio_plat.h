@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Data61, CSIRO (ABN 41 687 119 230)
+ * Copyright 2019, Data61, CSIRO (ABN 41 687 119 230)
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -8,13 +8,7 @@
 /*
  * BCM2711 TRM
  * section 6.3.   GIC-400: SPI IDs start from 32
- */
-#define IRQ_SPI_OFFSET 32
-#define GIC_IRQ_PHANDLE 0x01
-
-static const int linux_pt_irqs[] = {};
-
-/*
+ *
  * BCM2711 TRM
  * section 6.2.3. ARMC interrupts: Software interrupts 0-7: 8-15
  * section 6.3.   GIC-400 - ARMC peripheral IRQs: 64-79
@@ -27,8 +21,7 @@ static const int linux_pt_irqs[] = {};
  *    Software interrupt 6 = 78
  *    Software interrupt 7 = 79
  */
-static const int free_plat_interrupts[] =  { 72, 73, 74, 75, 76, 77, 78, 79 };
-static const char *plat_keep_devices[] = {};
-static const char *plat_keep_device_and_disable[] = {};
-static const char *plat_keep_device_and_subtree[] = {};
-static const char *plat_keep_device_and_subtree_and_disable[] = {};
+
+#define IRQ_SPI_OFFSET 32
+#define VIRTIO_NET_PLAT_INTERRUPT_LINE (72)
+#define VIRTIO_CON_PLAT_INTERRUPT_LINE (72)
