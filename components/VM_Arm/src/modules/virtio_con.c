@@ -63,7 +63,11 @@ static void emulate_console_putchar(char c)
 #else
     batch_buf->buf[batch_buf->tail] = c;
     batch_buf->tail = (batch_buf->tail + 1) % BUFSIZE;
-    if (c == '\n' || batch_buf->tail + 1 == batch_buf->head) {
+    /* TODO: batching line-by-line does not really lend itself to
+     * interactive usage, hence forcing this condition to always
+     * evaluate true.
+     */
+    if (1 || c == '\n' || batch_buf->tail + 1 == batch_buf->head) {
         batch_batch();
     }
 #endif
