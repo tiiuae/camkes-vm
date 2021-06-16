@@ -1,0 +1,41 @@
+/*
+ * Copyright 2021, Unikie
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+import <StorageServer.idl4>;
+import <PutChar.idl4>;
+
+#include <plat/storage.h>
+
+component Storage {
+    PROVIDED_STORAGE_INTERFACES
+};
+
+component StorageServer {
+    
+    has mutex storageserver_mux;
+    provides StorageServerInterface client;
+    
+    attribute int iospace_id;
+    /* format for bdf is "BUS:DEV.fun,BUS:DEV.fun,..." where BUS and DEV are hex and FUN is decimal */
+    attribute string pci_bdfs;
+    /* Some controllers have an odd quirk where they use multiple PCI ports. Should match number of
+     * ports set in the pci_bdfs string. See https://bugzilla.kernel.org/show_bug.cgi?id=42679
+     * for description of why this is needed
+     */
+    attribute int num_bdfs;
+    attribute int drive;
+
+    uses PutChar putchar;
+    
+    STORAGE_INTERFACES
+
+    /* Connect the storage components to the disk driver components */
+    composition {
+        STORAGE_COMPOSITION
+    }
+    configuration {
+        STORAGE_CONFIG
+    }
+}
