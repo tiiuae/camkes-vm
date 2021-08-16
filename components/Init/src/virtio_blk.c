@@ -59,31 +59,31 @@ static vm_t *emul_vm = NULL;
 
 /*
  *    These functions have the WEAK declaration because of the CAmkES protocol
- *    requirements. Virtio_blk uses the Sataserver component with interface functions (declared as
- *    "sataserver") so the compiler needs these so the build doesn't fail; however, the "weak"
- *    attribute means they are overridden by the proper functions (tx, rx, get_capacity)
+ *    requirements. Virtio_blk uses the StorageServer component with interface functions (declared as
+ *    "storageserver") so the compiler needs these so the build doesn't fail; however, the "weak"
+ *    attribute means they are overridden by the proper functions (write, read, get_capacity)
  */
-volatile Buf *sataserver_iface_buf WEAK;
+volatile Buf *storageserver_iface_buf WEAK;
 
-int WEAK sataserver_iface_tx(unsigned int sector, unsigned int len)
+int WEAK storageserver_iface_write(unsigned int sector, unsigned int len)
 {
     assert(!"should not be here");
     return 0;
 }
 
-int WEAK sataserver_iface_rx(unsigned int sector, unsigned int len)
+int WEAK storageserver_iface_read(unsigned int sector, unsigned int len)
 {
     assert(!"should not be here");
     return 0;
 }
 
-unsigned int WEAK sataserver_iface_get_capacity(void)
+unsigned int WEAK storageserver_iface_get_capacity(void)
 {
     assert(!"should not be here");
     return 0;
 }
 
-unsigned int WEAK sataserver_iface_get_status(void)
+unsigned int WEAK storageserver_iface_get_status(void)
 {
     assert(!"should not be here");
     return 0;
@@ -110,12 +110,12 @@ static int virtio_blk_emul_transfer(struct disk_driver *driver, uint8_t directio
 
     switch (direction) {
     case VIRTIO_BLK_T_IN:
-        status = sataserver_iface_rx(sector, len);
-        memcpy((void *)guest_buf_phys, (void *)sataserver_iface_buf, len);
+        status = storageserver_iface_read(sector, len);
+        memcpy((void *)guest_buf_phys, (void *)storageserver_iface_buf, len);
         break;
     case VIRTIO_BLK_T_OUT:
-        memcpy((void *)sataserver_iface_buf, (void *)guest_buf_phys, len);
-        status = sataserver_iface_tx(sector, len);
+        memcpy((void *)storageserver_iface_buf, (void *)guest_buf_phys, len);
+        status = storageserver_iface_write(sector, len);
         break;
     case VIRTIO_BLK_T_SCSI_CMD:
     case VIRTIO_BLK_T_FLUSH:
@@ -157,7 +157,7 @@ static void emul_raw_handle_irq(struct disk_driver *driver, int irq)
  */
 static void emul_low_level_init(struct disk_driver *driver, struct virtio_blk_config *cfg)
 {
-    cfg->capacity = sataserver_iface_get_capacity();
+    cfg->capacity = storageserver_iface_get_capacity();
     cfg->seg_max = VIRTIO_BLK_SEG_MAX;
     cfg->size_max = VIRTIO_BLK_SIZE_MAX;
     cfg->blk_size = VIRTIO_BLK_DISK_BLK_SIZE;
@@ -172,10 +172,10 @@ UNUSED void virtio_blk_notify(vm_t *vm)
 /* Initialization Function for Virtio Blk */
 void make_virtio_blk(vm_t *vm, vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
 {
-    unsigned int status = sataserver_iface_get_status();
+    unsigned int status = storageserver_iface_get_status();
 
     while (SATASERVER_STATUS_NOT_DONE == status) {
-        status = sataserver_iface_get_status();
+        status = storageserver_iface_get_status();
     }
 
     if (SATASERVER_STATUS_INVALID_CONF == status) {
