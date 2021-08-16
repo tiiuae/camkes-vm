@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-2.0-only
  */
 procedure StorageServerInterface {
-    int tx(in unsigned int sector, in unsigned int len);
-    int rx(in unsigned int sector, in unsigned int len);
+    int write(in unsigned int sector, in unsigned int len);
+    int read(in unsigned int sector, in unsigned int len);
     unsigned int get_capacity(void);
     unsigned int get_status(void);
 };

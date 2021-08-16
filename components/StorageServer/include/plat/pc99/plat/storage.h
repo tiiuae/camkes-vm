@@ -1,5 +1,6 @@
 /*
  * Copyright 2019, Dornerworks
+ * Copyright 2021, Unikie
  *
  * SPDX-License-Identifier: GPL-2.0-only
  */
@@ -9,6 +10,8 @@
 
 #define HARDWARE_SATA_PROVIDES_INTERFACES                                          \
     dataport Buf(8192) mmio;
+    
+#define HARDWARE_SATA_ATTRIBUTES
 
 #define HARDWARE_SATA_INTERFACES                                                   \
     dataport Buf(8192) ahcidriver;
@@ -23,7 +26,8 @@
     HWsata.mmio_size = 0x2000;
 
     
-#define PROVIDED_STORAGE_INTERFACES    HARDWARE_SATA_PROVIDES_INTERFACES
-#define STORAGE_INTERFACES             HARDWARE_SATA_INTERFACES
-#define STORAGE_COMPOSITION            HARDWARE_SATA_COMPOSITION
-#define STORAGE_CONFIG                 HARDWARE_SATA_CONFIG
+#define PLAT_PROVIDES_STORAGE_INTERFACES    HARDWARE_SATA_PROVIDES_INTERFACES
+#define PLAT_STORAGE_SERVER_ATTRIBUTES      HARDWARE_SATA_ATTRIBUTES
+#define PLAT_STORAGE_SERVER_INTERFACES      HARDWARE_SATA_INTERFACES
+#define PLAT_STORAGE_COMPOSITION            HARDWARE_SATA_COMPOSITION
+#define PLAT_STORAGE_CONFIG                 HARDWARE_SATA_CONFIG

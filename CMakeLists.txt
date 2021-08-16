@@ -31,6 +31,7 @@ add_subdirectory(components/Firewall)
 add_subdirectory(components/StringReverse)
 add_subdirectory(components/UDPServer)
 add_subdirectory(components/Sataserver)
+add_subdirectory(components/StorageServer)
 
 # Declare connectors with templates.
 # We can rely on the naming scheme being consistent to allow for easier declaration.
@@ -44,6 +45,7 @@ foreach(
     seL4PicoUDPRecv
     seL4MultiSharedData
     seL4Sataserver
+    seL4StorageServer
 )
     DeclareCAmkESConnector(
         ${connector}

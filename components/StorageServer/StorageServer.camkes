@@ -9,13 +9,15 @@ import <PutChar.idl4>;
 #include <plat/storage.h>
 
 component Storage {
-    PROVIDED_STORAGE_INTERFACES
+    PLAT_PROVIDES_STORAGE_INTERFACES
 };
 
 component StorageServer {
     
     has mutex storageserver_mux;
     provides StorageServerInterface client;
+    
+    PLAT_STORAGE_SERVER_ATTRIBUTES
     
     attribute int iospace_id;
     /* format for bdf is "BUS:DEV.fun,BUS:DEV.fun,..." where BUS and DEV are hex and FUN is decimal */
@@ -29,13 +31,14 @@ component StorageServer {
 
     uses PutChar putchar;
     
-    STORAGE_INTERFACES
+    PLAT_STORAGE_SERVER_INTERFACES
 
     /* Connect the storage components to the disk driver components */
     composition {
-        STORAGE_COMPOSITION
+        PLAT_STORAGE_COMPOSITION
     }
+    
     configuration {
-        STORAGE_CONFIG
+        PLAT_STORAGE_CONFIG
     }
 }

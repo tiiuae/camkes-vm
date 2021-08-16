@@ -9,13 +9,13 @@
 
 #define STORAGE_COMPOSITION_DEF()                               \
     component StorageServer storageserver;                      \
-    connection seL4RPCCall storage_serial(from storageserver.putchar, to serial.processed_putchar);
+    connection seL4RPCCall storageserver_serial(from storageserver.putchar, to serial.processed_putchar);
 
 /* Convenience wrapper for connecting VMs to the StorageServer component
  * num: vm instance number
 */
 #define VM_STORAGE_CONNECTIONS(num)                                                     \
-    connection seL4StorageServer storageservercon##num(from vm##num.storageserver_iface, to storageserver.client);
+    connection seL4StorageServer vm##numstorageservercon(from vm##num.storageserver_iface, to storageserver.client);
 
 /* Convenience wrapper for configuring the StorageServer
  */
