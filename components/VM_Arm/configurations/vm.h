@@ -78,6 +78,8 @@
         string initrd_name = "linux-initrd"; \
         string linux_bootcmdline = ""; \
         string linux_stdout = ""; \
+        string vm_name = ""; \
+        int shared_memory_size = ""; \
     } linux_image_config; \
 
 

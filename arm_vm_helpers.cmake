@@ -51,6 +51,13 @@ function(DeclareCAmkESARMVM init_component)
     list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/map_frame_hack.c)
     list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/init_ram.c)
 
+    if(SharedMemory)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/shared_memory_vm.c)
+
+        # Define our VM Component with our cross vm dataports glue code
+        #DeclareCAmkESARMVM(vm_src EXTRA_SOURCES ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/shared_memory_vm.cEXTRA_LIBS queue)
+    endif()
+
     if(Tk1DeviceFwd)
         list(
             APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/plat/tk1/device_fwd.c

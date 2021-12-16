@@ -101,6 +101,16 @@ config_option(
 )
 
 config_option(
+    SharedMemory
+    SHARED_MEMORY
+    "Shared memory inter VM communication"
+    DEPENDS
+    "KernelPlatformQEMUArmVirt"
+    DEFAULT
+    OFF
+)
+
+config_option(
     Tk1Insecure
     TK1_INSECURE
     "Insecure: Give all devices to VM component \

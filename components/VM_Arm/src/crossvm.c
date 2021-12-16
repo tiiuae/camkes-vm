@@ -81,3 +81,43 @@ int cross_vm_connections_init(vm_t *vm, uintptr_t connection_base_addr, camkes_c
     free(crossvm_connections);
     return ret;
 }
+
+int cross_vm_connections_init_personalized(vm_t *vm, uintptr_t connection_base_addr, camkes_crossvm_connection_t *connections,
+                              int num_connections)
+{
+
+    int sectioned_connections = 0;
+    // Connections can also be declared in linker sections.
+    for (camkes_crossvm_connection_t **i = __start__vmm_cross_connector_definition;
+         i < __stop__vmm_cross_connector_definition; i++) {
+        if (*i != NULL) {
+            sectioned_connections++;
+        }
+    }
+
+
+    crossvm_handle_t *crossvm_connections = calloc(num_connections + sectioned_connections, sizeof(crossvm_handle_t));
+    if (!crossvm_connections) {
+        return -1;
+    }
+    for (int i = 0; i < num_connections; i++) {
+        if (setup_connection(crossvm_connections, i, &connections[i])) {
+            return -1;
+        }
+    }
+    int i = num_connections;
+    for (camkes_crossvm_connection_t **connection = __start__vmm_cross_connector_definition;
+         connection < __stop__vmm_cross_connector_definition; connection++, i++) {
+        if (*connection != NULL) {
+            if (setup_connection(crossvm_connections, i, *connection)) {
+                return -1;
+            }
+        }
+    }
+
+    int ret = cross_vm_connections_init_common_personalized(vm, connection_base_addr, crossvm_connections,
+                                                            num_connections + sectioned_connections,
+                                                            get_crossvm_irq_num);
+    free(crossvm_connections);
+    return ret;
+}

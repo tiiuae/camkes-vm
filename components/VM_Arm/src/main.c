@@ -86,6 +86,8 @@ int NUM_VCPUS = 1;
 
 #define DMA_VSTART  0x40000000
 
+#define BUFF_READY_IDX 20
+
 #ifndef DEBUG_BUILD
 #define seL4_DebugHalt() do{ printf("Halting...\n"); while(1); } while(0)
 #endif
@@ -1005,6 +1007,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
     case 0:
         return FAULT_ERROR;
     default:
+        ZF_LOGE("VM_ONDEMAND_DEVICE_INSTALL @ paddr 0x%lx len = %zu", paddr, len);
         reservation = vm_reserve_memory_at(vm, addr, 0x1000,
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
@@ -1129,6 +1132,56 @@ int main_continued(void)
 
     int vm_exit_reason;
     while (1) {
+
+        //uint32_t *ptr = buff;
+        //printf("Printing %d...\n", *ptr);
+        //printf("Physical %p...\n", buff);
+
+        /*if (!strcmp(linux_image_config.vm_name, "vm0")) { // Sender
+            printf("This is VM: %s \n", linux_image_config.vm_name);
+            
+            char *hello = "hello";
+
+            printf("%s: sending %s...\n", linux_image_config.vm_name, hello);
+            strncpy((char*)buff, hello, BUFF_READY_IDX - 1);
+            printf("Dataport addr: %p \n", buff);
+
+            buff_release(); // ensure the assignment below occurs after the strcpy above
+            ((char*)buff)[BUFF_READY_IDX] = 1;
+
+
+            // Wait for Pong to reply. We can assume d2_data is
+            // zeroed on startup by seL4.
+            //
+            while (!((char*)buff)[BUFF_READY_IDX]) {
+                buff_acquire(); // ensure d2 is read from in each iteration
+
+                printf("%s: received %s.\n", linux_image_config.vm_name, (char*)buff);
+            }
+
+            printf("\n\n");   
+        } else if (!strcmp(linux_image_config.vm_name, "vm1")) { // Receiver
+            printf("This is VM: %s \n", linux_image_config.vm_name);
+
+            char *world = "world";
+
+            // Wait for Ping to message us. We can assume s1_data is
+            // zeroed on startup by seL4.
+
+            while (!((char*)buff)[BUFF_READY_IDX]) {
+                buff_acquire(); // ensure s1 is read from in each iteration
+            }
+
+            printf("%s: received %s\n", linux_image_config.vm_name, (char*)buff);
+
+            printf("%s: sending %s...\n", linux_image_config.vm_name, world);
+            strncpy((char*)buff, world, BUFF_READY_IDX - 1);
+
+            buff_release(); // ensure the assignment below occurs after the strcpy above
+
+            printf("\n\n");  
+        }*/
+
         err = vm_run(&vm);
         if (err) {
             ZF_LOGE("Failed to run VM");
