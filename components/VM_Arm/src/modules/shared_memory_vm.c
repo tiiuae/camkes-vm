@@ -40,33 +40,6 @@ static struct camkes_crossvm_connection connections[] = {
 	{&buff_handle, NULL, -1}
 };
 
-/*static int guest_write_address(vm_t *vm, uintptr_t paddr, void *vaddr, size_t size, size_t offset, void *cookie)
-{
-    printf("INSIDE CALLBACK WRITE\n");
-    printf("W - COOKIE: %d \n", *(int *)cookie);
-    printf("W - COFFSET: %d \n", offset);
-    printf("W - VADDR: %p \n", vaddr);
-    printf("W - PADDR: %p \n", paddr);
-    printf("W - CSIZE: %d \n", size);
-
-    memcpy(vaddr, cookie + offset, size);
-    return 0;
-}
-
-//VMM read guest memory
-static int guest_read_address(vm_t *vm, uintptr_t paddr, void *vaddr, size_t size, size_t offset, void *cookie)
-{
-    printf("INSIDE CALLBACK READ\n");
-    printf("R - COOKIE: %d \n", *(int *)cookie);
-    printf("R - OFFSET: %d \n", offset);
-    printf("R - VADDR: %p \n", vaddr);
-    printf("R - PADDR: %p \n", paddr);
-    printf("R - SIZE: %d \n", size);
-
-    memcpy(cookie + offset, vaddr, size);
-    return 0;
-}*/
-
 static int consume_callback(vm_t *vm, void *cookie)
 {
     consume_connection_event(vm, connections[0].consume_badge, true);
@@ -79,8 +52,6 @@ static int write_buffer(vm_t *vm, uintptr_t load_addr)
 
 	vm_ram_mark_allocated(vm, load_addr, 4);
 
-	// vm_ram_touch(vm, load_addr, len, guest_read_address, (void *)buf);
-	// JP- vm_ram_touch(vcpu->vm, 0xF1000000, 4, guest_read_address, &buf);
 	clean_vm_ram_touch(vm, load_addr, 4, personalized_vm_guest_ram_write_callback, value); // It will never be a ram region as we allocate out of RAM
 
     printf("%s: WRITE VALUE: %s \n", linux_image_config.vm_name, value);
@@ -128,10 +99,6 @@ void init_shared_memory_vm(vm_t *vm, void *cookie)
         
         write_buffer(vm, addr_ram);
 
-        // NEXT: SENDING
-        // Send the data
-        //p1_out_aadl_event_data_send(dataport, &data, emit);  
-
         char *ptr = (char *)buff;
         printf("Buffer: %d \n", *(char *)ptr);
 
@@ -155,13 +122,6 @@ void init_shared_memory_vm(vm_t *vm, void *cookie)
 
         cross_vm_connections_init(vm, addr_ram, connections, ARRAY_SIZE(connections));    
 
-        int i=0;
-        while (i<999999999)
-        {
-            i++;
-        }
-            
-        
         read_buffer(vm, addr_ram);
 
         char *ptr = (char *)buff;
