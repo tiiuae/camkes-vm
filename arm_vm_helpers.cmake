@@ -137,7 +137,7 @@ function(DeclareCAmkESARMVM init_component)
         seL4AllocatorMempool.template.h
     )
 
-    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
+    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole OR VmVirtioQEMU)
         DeclareCAmkESComponent(${init_component} LIBS virtio vswitch)
     endif()
 
