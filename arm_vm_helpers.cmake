@@ -127,7 +127,7 @@ function(DeclareCAmkESARMVM init_component)
         ${VM_COMP_EXTRA_C_FLAGS}
     )
 
-    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
+    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole OR VmVirtioQEMU)
         DeclareCAmkESComponent(${init_component} LIBS virtio vswitch)
     endif()
 
