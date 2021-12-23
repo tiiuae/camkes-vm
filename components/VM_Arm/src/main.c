@@ -4,6 +4,9 @@
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
+
+#define ZF_LOG_LEVEL ZF_LOG_INFO
+
 #include <autoconf.h>
 #include <arm_vm/gen_config.h>
 #include <sel4muslcsys/gen_config.h>
@@ -1088,6 +1091,12 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
     return FAULT_ERROR;
 }
 
+void WEAK qemu_initialize_semaphores(vm_t *vm);
+
+void WEAK wait_for_host_qemu(void)
+{
+}
+
 static int main_continued(void)
 {
     vm_t vm;
@@ -1179,6 +1188,22 @@ static int main_continued(void)
     err = route_irqs(vm_vcpu, _irq_server);
     if (err) {
         return -1;
+    }
+
+    /* load_linux() eventually calls fdt_generate_vpci_node(), which
+     * will block unless QEMU is already running in the driver VM.
+     * Therefore we will need to listen to start signal here before
+     * load_linux().
+     */
+
+    if (qemu_initialize_semaphores) {
+        qemu_initialize_semaphores(&vm);
+    }
+
+    if (linux_ram_base == 0x48000000) {
+        ZF_LOGI("waiting for driver QEMU");
+        wait_for_host_qemu();
+        ZF_LOGI("driver QEMU up, continuing");
     }
 
     /* Load system images */
