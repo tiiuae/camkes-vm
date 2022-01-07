@@ -15,7 +15,7 @@
 extern unsigned long linux_ram_base;
 extern unsigned long linux_ram_size;
 
-void WEAK init_ram_module(vm_t *vm, void *cookie)
+void do_init_ram_module(vm_t *vm, void *cookie)
 {
     int err;
 
@@ -25,6 +25,11 @@ void WEAK init_ram_module(vm_t *vm, void *cookie)
         err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, false);
     }
     assert(!err);
+}
+
+void WEAK init_ram_module(vm_t *vm, void *cookie)
+{
+	do_init_ram_module(vm, cookie);
 }
 
 DEFINE_MODULE(init_ram, NULL, init_ram_module)
