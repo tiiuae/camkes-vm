@@ -997,6 +997,8 @@ static memory_fault_result_t handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t
     return FAULT_ERROR;
 }
 
+memory_fault_result_t WEAK external_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t paddr, size_t len, void *cookie);
+
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                                                    uintptr_t paddr, size_t len, void *cookie)
 {
@@ -1006,11 +1008,18 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
 
     uintptr_t addr = paddr & ~0xfff;
     int mapped;
+    int rc;
     vm_memory_reservation_t *reservation;
     switch (addr) {
     case 0:
         return FAULT_ERROR;
     default:
+        if (external_fault_callback) {
+            rc = external_fault_callback(vm, vcpu, paddr, len, cookie);
+            if (rc != FAULT_UNHANDLED) {
+                return rc;
+            }
+        }
         reservation = vm_reserve_memory_at(vm, addr, 0x1000,
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
