@@ -718,6 +718,12 @@ static int route_irqs(vm_vcpu_t *vcpu, irq_server_t *irq_server)
     return 0;
 }
 
+int WEAK fdt_customize(vm_t *vm, void *gen_fdt, vmm_pci_space_t *pci)
+{
+    ZF_LOGI("No hook installed");
+    return 0;
+}
+
 static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
                         int num_paths)
 {
@@ -817,6 +823,12 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
             ZF_LOGE("Couldn't generate vpci_node (%d)\n", err);
             return -1;
         }
+    }
+
+    err = fdt_customize(vm, gen_fdt, pci);
+    if (err) {
+        ZF_LOGE("Couldn't customize device tree (%d)\n", err);
+        return -1;
     }
 
     fdt_pack(gen_fdt);
@@ -1069,17 +1081,29 @@ static memory_fault_result_t handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t
     return FAULT_ERROR;
 }
 
+memory_fault_result_t WEAK external_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
+                                                   uintptr_t paddr, size_t len,
+                                                   void *cookie);
+
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
-                                                   uintptr_t paddr, size_t len, void *cookie)
+                                                   uintptr_t paddr, size_t len,
+                                                   void *cookie)
 {
 #ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
     uintptr_t addr = PAGE_ALIGN(paddr, SIZE_BITS_TO_BYTES(seL4_PageBits));
     int mapped;
+    int rc;
     vm_memory_reservation_t *reservation;
     switch (addr) {
     case 0:
         return FAULT_ERROR;
     default:
+        if (external_fault_callback) {
+            rc = external_fault_callback(vm, vcpu, paddr, len, cookie);
+            if (rc != FAULT_UNHANDLED) {
+                return rc;
+            }
+        }
         reservation = vm_reserve_memory_at(vm, addr, SIZE_BITS_TO_BYTES(seL4_PageBits),
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
@@ -1090,6 +1114,11 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
     }
 #endif
     return FAULT_ERROR;
+}
+
+int WEAK pre_load_linux_hook(vm_t *vm)
+{
+    return 0;
 }
 
 int main_continued(void)
@@ -1186,6 +1215,12 @@ int main_continued(void)
     err = route_irqs(vm_vcpu, _irq_server);
     if (err) {
         ZF_LOGE("route_irqs() failed (%d)", err);
+        return err;
+    }
+
+    err = pre_load_linux_hook(&vm);
+    if (err) {
+        ZF_LOGE("pre_load_linux_hook() failed (%d)", err);
         return err;
     }
 
