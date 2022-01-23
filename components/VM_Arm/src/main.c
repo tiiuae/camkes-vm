@@ -1056,17 +1056,26 @@ static memory_fault_result_t handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t
     return FAULT_ERROR;
 }
 
+memory_fault_result_t WEAK external_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t paddr, size_t len, void *cookie);
+
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                                                    uintptr_t paddr, size_t len, void *cookie)
 {
 #ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
     uintptr_t addr = PAGE_ALIGN(paddr, SIZE_BITS_TO_BYTES(seL4_PageBits));
     int mapped;
+    int rc;
     vm_memory_reservation_t *reservation;
     switch (addr) {
     case 0:
         return FAULT_ERROR;
     default:
+        if (external_fault_callback) {
+            rc = external_fault_callback(vm, vcpu, paddr, len, cookie);
+            if (rc != FAULT_UNHANDLED) {
+                return rc;
+            }
+        }
         reservation = vm_reserve_memory_at(vm, addr, SIZE_BITS_TO_BYTES(seL4_PageBits),
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
