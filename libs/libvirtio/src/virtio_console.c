@@ -34,7 +34,7 @@ static void console_handle_irq(void *cookie)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_CON_PLAT_INTERRUPT_LINE);
+    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_PLAT_INTERRUPT_LINE);
     if (err) {
         ZF_LOGE("Failed to inject irq");
         return;
@@ -62,10 +62,10 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
     backend.console_data = (void *)console_cookie;
     ioport_range_t virtio_port_range = {0, 0, VIRTIO_IOPORT_SIZE};
     virtio_con = common_make_virtio_con(vm, pci, io_ports, virtio_port_range, IOPORT_FREE,
-                                        VIRTIO_INTERRUPT_PIN, VIRTIO_CON_PLAT_INTERRUPT_LINE, backend);
+                                        VIRTIO_INTERRUPT_PIN, VIRTIO_PLAT_INTERRUPT_LINE, backend);
     console_cookie->virtio_con = virtio_con;
     console_cookie->vm = vm;
-    err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
+    err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
     if (err) {
         ZF_LOGE("Failed to register console irq");
         return NULL;

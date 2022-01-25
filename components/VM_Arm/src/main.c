@@ -38,6 +38,9 @@
 
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 
+#include <virtio/virtio.h>
+#include <virtio/virtio_plat.h>
+
 #include <sel4vmmplatsupport/arch/vusb.h>
 #include <sel4vmmplatsupport/arch/vpci.h>
 #include <sel4vmmplatsupport/guest_image.h>
@@ -766,7 +769,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     }
 
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
-        err = fdt_generate_vpci_node(vm, pci, gen_fdt, GIC_IRQ_PHANDLE);
+        err = fdt_generate_vpci_node(vm, pci, gen_fdt, GIC_IRQ_PHANDLE, VIRTIO_INTERRUPT_PIN, VIRTIO_PLAT_INTERRUPT_LINE);
         if (err) {
             return -1;
         }

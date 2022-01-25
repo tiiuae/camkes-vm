@@ -42,7 +42,7 @@ static void emul_raw_handle_irq(struct eth_driver *driver, int irq)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE);
+    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_PLAT_INTERRUPT_LINE);
     if (err) {
         ZF_LOGE("Failed to inject irq");
         return;
@@ -126,14 +126,14 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
 
     ioport_range_t virtio_port_range = {0, 0, VIRTIO_IOPORT_SIZE};
     virtio_net = common_make_virtio_net(vm, pci, io_ports, virtio_port_range, IOPORT_FREE,
-                                        VIRTIO_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend, false);
+                                        VIRTIO_INTERRUPT_PIN, VIRTIO_PLAT_INTERRUPT_LINE, backend);
     if (virtio_net == NULL) {
         ZF_LOGE("Failed to initialise virtio net driver");
         return NULL;
     }
     driver_cookie->virtio_net = virtio_net;
     driver_cookie->vm = vm;
-    int err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
+    int err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
     if (callbacks) {
         driver_cookie->callbacks.tx_callback = callbacks->tx_callback;
         driver_cookie->callbacks.irq_callback = callbacks->irq_callback;
