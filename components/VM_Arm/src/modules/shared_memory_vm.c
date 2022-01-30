@@ -37,7 +37,7 @@ extern dataport_caps_handle_t buff_handle;
 void done_emit_underlying(void); 
 
 static struct camkes_crossvm_connection connections[] = {
-	{&buff_handle, NULL, -1}
+	{&buff_handle, NULL, -1, NULL}
 };
 
 static int consume_callback(vm_t *vm, void *cookie)
@@ -57,7 +57,7 @@ static int write_buffer(vm_t *vm, uintptr_t load_addr)
     printf("%s: WRITE VALUE: %s \n", linux_image_config.vm_name, value);
 
     char *ptr = (char *)buff;
-    printf("%s: WRITE Buffer: %s \n", linux_image_config.vm_name, *(char *)ptr);
+    printf("%s: WRITE Buffer: %s \n", linux_image_config.vm_name, *ptr);
 
     return 0;
 }
@@ -82,11 +82,8 @@ void init_shared_memory_vm(vm_t *vm, void *cookie)
 {
 	uintptr_t addr_ram;
 
-	if (!strcmp(linux_image_config.vm_name, "vm0")) { // Sender
+	if (!strcmp(linux_image_config.vm_name, "vm0")) { 
         
-        //addr_ram = 0x2fffffff;    
-        addr_ram = 0xDF000000;
-
         if (done_emit_underlying) {
 		connections[0].emit_fn = done_emit_underlying;
         } else if (ready_emit_underlying) {
@@ -95,49 +92,33 @@ void init_shared_memory_vm(vm_t *vm, void *cookie)
             ZF_LOGF("Could not find emit function");
         }
 
-        cross_vm_connections_init(vm, addr_ram, connections, ARRAY_SIZE(connections));
+        cross_vm_connections_init(vm, CONNECTION_BASE_ADDRESS, connections, ARRAY_SIZE(connections));
         
-        write_buffer(vm, addr_ram);
+        write_buffer(vm, CONNECTION_BASE_ADDRESS);
 
         char *ptr = (char *)buff;
-        printf("Buffer: %d \n", *(char *)ptr);
+        printf("Buffer: %p - 0x%x\n", ptr, *ptr);
 
-        /*seL4_Word paddr = *(seL4_Word *)introspect_data;
-        printf("paddr in component 0x%x\n", paddr);*/
-
-        /*char *msg = "test";
-        printf("%s: sending %s...\n", linux_image_config.vm_name, msg);
-        strncpy((char *)buff, msg, BUFF_READY_IDX - 1);
-
-        buff_release(); // ensure the assignment below occurs after the strcpy above
-        ((char *)buff)[BUFF_READY_IDX] = 1;*/
-
-	} else if (!strcmp(linux_image_config.vm_name, "vm1")) { // Receiver
-
-        addr_ram = 0xDF000000;
+	} else if (!strcmp(linux_image_config.vm_name, "vm1")) { 
+        //return;
 
         connections[0].consume_badge = done_notification_badge();
         int err = register_async_event_handler(connections[0].consume_badge, consume_callback, NULL);
         ZF_LOGF_IF(err, "Failed to register_async_event_handler for init_cross_vm_connections.");
 
-        cross_vm_connections_init(vm, addr_ram, connections, ARRAY_SIZE(connections));    
+        cross_vm_connections_init(vm, CONNECTION_BASE_ADDRESS, connections, ARRAY_SIZE(connections));    
 
-        read_buffer(vm, addr_ram);
+        int i=0;
+        while (i<999999999)
+        {
+            i++;
+        }
+            
+        
+        read_buffer(vm, CONNECTION_BASE_ADDRESS);
 
         char *ptr = (char *)buff;
-        printf("Buffer: %d \n", *(char *)ptr);
-
-
-        /*while (!((char*)buff)[BUFF_READY_IDX]) {
-            buff_acquire(); // ensure buff is read from in each iteration
-        }
-
-        printf("%s: received %s\n", linux_image_config.vm_name, (char*)buff);*/
-
-	} else if (!strcmp(linux_image_config.vm_name, "vm2")) {
-		addr_ram = 0xDF000000;
-
-        cross_vm_connections_init(vm, addr_ram, connections, ARRAY_SIZE(connections));        
+        printf("Buffer: %p - 0x%x\n", ptr, *ptr);
 
 	}
 }
