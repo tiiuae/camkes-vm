@@ -32,7 +32,7 @@ config_option(
     VM_PCI_SUPPORT
     "Enable virtual pci device support"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt OR KernelPlatformOdroidc2"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt OR KernelPlatformOdroidc2 OR KernelPlatformRpi4"
     DEFAULT
     OFF
 )
@@ -42,7 +42,7 @@ config_option(
     VM_VIRTIO_NET_ARPING
     "Enable virtio net arping module"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt;VmPCISupport"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt OR KernelPlatformRpi4;VmPCISupport"
     DEFAULT
     OFF
 )
@@ -52,7 +52,7 @@ config_option(
     VM_VIRTIO_NET_VIRTQUEUE
     "Enable virtio net virtqueue forwarding module"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt;VmPCISupport"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2 OR KernelPlatformQEMUArmVirt OR KernelPlatformRpi4;VmPCISupport"
     DEFAULT
     OFF
 )
@@ -62,7 +62,7 @@ config_option(
     VM_VIRTIO_CON
     "Enable virtio console module"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformQEMUArmVirt;VmPCISupport"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformQEMUArmVirt OR KernelPlatformRpi4;VmPCISupport"
     DEFAULT
     OFF
 )
@@ -96,16 +96,6 @@ config_option(
     devices, this option will cause the vm to forward the faults over a RPC connection"
     DEPENDS
     "KernelPlatformTK1"
-    DEFAULT
-    OFF
-)
-
-config_option(
-    SharedMemory
-    SHARED_MEMORY
-    "Shared memory inter VM communication"
-    DEPENDS
-    "KernelPlatformQEMUArmVirt"
     DEFAULT
     OFF
 )
