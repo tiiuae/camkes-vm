@@ -973,6 +973,9 @@ static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie)
     uintptr_t paddr = addr & ~0xfff;
     vm_frame_t frame_result = { seL4_CapNull, seL4_NoRights, 0, 0 };
     vm_t *vm = (vm_t *)cookie;
+
+    ZF_LOGV("Attempting to allocate on-demand memory for addr 0x%"PRIxPTR, addr);
+
     /* Attempt allocating device memory */
     err = alloc_vm_device_cap(paddr, vm, &frame_result);
     if (!err) {
@@ -998,6 +1001,9 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                                                    uintptr_t paddr, size_t len, void *cookie)
 {
 #ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
+
+    ZF_LOGV("Attempting to handle on-demand device install for addr 0x%"PRIxPTR, (uintptr_t)paddr);
+
     uintptr_t addr = paddr & ~0xfff;
     int mapped;
     vm_memory_reservation_t *reservation;
