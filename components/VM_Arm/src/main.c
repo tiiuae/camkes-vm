@@ -814,7 +814,8 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         }
     }
 
-    if (!config_set(CONFIG_VM_DTB_FILE)) {
+    if (!config_set(CONFIG_VM_DTB_FILE) && *dtb_name == '\0') {
+    	printf("dts generation\n");
         camkes_io_fdt(&(_io_ops.io_fdt));
         void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
 
@@ -836,6 +837,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
         dtb = dtb_addr;
     } else {
+    	printf("no dts generation\n");
         /* Load device tree */
         guest_image_t dtb_image;
         err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
