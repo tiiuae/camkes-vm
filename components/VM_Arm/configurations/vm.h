@@ -107,8 +107,6 @@
     vm##num.global_endpoint_base = 1 << 27; \
     vm##num.asid_pool = true; \
     vm##num.simple = true; \
-    vm##num.base_prio = 100; \
-    vm##num._priority = 101; \
     vm##num.sem_value = 0; \
     vm##num.heap_size = 0x300000;
 
