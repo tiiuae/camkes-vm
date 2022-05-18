@@ -82,7 +82,6 @@ int VM_PRIO = 100;
 int NUM_VCPUS = 1;
 #define VIRTIO_NET_BADGE    (1U << 1)
 #define SERIAL_BADGE        (1U << 2)
-#define VM_NAME             "Linux"
 
 #define IRQSERVER_PRIO      (VM_PRIO + 1)
 #define IRQ_MESSAGE_LABEL   0xCAFE
@@ -1035,6 +1034,9 @@ void WEAK wait_for_host_qemu(void)
 {
 }
 
+/* defined in camkes-tool/camkes/templates/component.common.c */
+const char *get_instance_name();
+
 int main_continued(void)
 {
     vm_t vm;
@@ -1075,7 +1077,7 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    err = vm_init(&vm, &_vka, &_simple, _vspace, &_io_ops, _fault_endpoint, VM_NAME);
+    err = vm_init(&vm, &_vka, &_simple, _vspace, &_io_ops, _fault_endpoint, get_instance_name());
     assert(!err);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
