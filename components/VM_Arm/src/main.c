@@ -1109,6 +1109,9 @@ void WEAK wait_for_host_qemu(void)
 {
 }
 
+/* defined in camkes-tool/camkes/templates/component.common.c */
+const char *get_instance_name();
+
 int main_continued(void)
 {
     vm_t vm;
