@@ -859,7 +859,11 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
     /* Attempt to load initrd if provided */
     guest_image_t initrd_image;
+#ifdef CONFIG_VM_VIRTIO_QEMU
     if (config_set(CONFIG_VM_INITRD_FILE) && linux_ram_base == 0x48000000) {
+#else
+    if (config_set(CONFIG_VM_INITRD_FILE)) {
+#endif
         err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
         void *initrd = (void *)initrd_image.load_paddr;
         if (!initrd || err) {
@@ -1207,6 +1211,7 @@ int main_continued(void)
         return -1;
     }
 
+#if CONFIG_VM_VIRTIO_QEMU
     {
         extern void *ctrl;
         memset(((char *)ctrl) + 3072, 0, 4 * sizeof(uint32_t));
@@ -1227,6 +1232,7 @@ int main_continued(void)
         wait_for_host_qemu();
         ZF_LOGI("driver QEMU up, continuing");
     }
+#endif
 
     /* Load system images */
     err = load_linux(&vm, linux_image_config.linux_name, linux_image_config.dtb_name, linux_image_config.initrd_name);
