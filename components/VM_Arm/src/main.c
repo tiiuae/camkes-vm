@@ -1193,6 +1193,7 @@ static int main_continued(void)
         return -1;
     }
 
+#if CONFIG_VM_VIRTIO_QEMU
     {
         extern void *ctrl;
         memset(((char *)ctrl) + 3072, 0, 4 * sizeof(uint32_t));
@@ -1213,6 +1214,7 @@ static int main_continued(void)
         wait_for_host_qemu();
         ZF_LOGI("driver QEMU up, continuing");
     }
+#endif
 
     /* Load system images */
     err = load_vm(&vm, _kernel_name, _dtb_name, _initrd_name);
