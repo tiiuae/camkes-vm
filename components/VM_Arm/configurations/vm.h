@@ -54,6 +54,11 @@
     DEF_KERNELARMPLATFORM_EXYNOS5410 \
     maybe consumes restart restart_event; \
     has semaphore vm_sem; \
+    maybe uses Batch batch; \
+    maybe uses PutChar guest_putchar; \
+    maybe uses GetChar serial_getchar; \
+    maybe uses VirtQueueDev recv; \
+    maybe uses VirtQueueDrv send; \
     consumes HaveNotification notification_ready; \
     emits HaveNotification notification_ready_connector; \
     maybe uses VMDTBPassthrough dtb_self; \
