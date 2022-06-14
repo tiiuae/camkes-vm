@@ -69,6 +69,7 @@
 #include <fdtgen.h>
 #include "fdt_manipulation.h"
 
+
 /* Do - Include prototypes to surpress compiler warnings
  * TODO: Add these to a template header */
 seL4_CPtr notification_ready_notification(void);
@@ -125,6 +126,10 @@ char **WEAK camkes_dtb_get_plat_keep_devices_and_subtree(int *num_nodes);
 #ifdef CONFIG_ARM_SMMU
 seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
+#endif
+
+#ifdef CONFIG_VM_VIRTIO_QEMU
+extern const int vmid;
 #endif
 
 int get_crossvm_irq_num(void)
@@ -810,6 +815,19 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         }
     }
 
+#ifdef CONFIG_VM_VIRTIO_QEMU
+    if (vmid == 0) {
+        ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
+
+        err = fdt_generate_usb_node(gen_fdt);
+        if (err) {
+            return -1;
+        }
+    } else {
+        ZF_LOGI("Not a driver-vm.. skip adding usb@1,0 node");
+    }
+#endif
+
     fdt_pack(gen_fdt);
 
     return 0;
@@ -1209,7 +1227,7 @@ static int main_continued(void)
         qemu_initialize_semaphores(&vm);
     }
 
-    if (linux_ram_base == 0x48000000) {
+    if (vmid != 0) {
         ZF_LOGI("waiting for driver QEMU");
         wait_for_host_qemu();
         ZF_LOGI("driver QEMU up, continuing");
