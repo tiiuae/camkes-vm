@@ -774,6 +774,11 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         }
     }
 
+    err = fdt_generate_usb_node(gen_fdt);
+    if (err) {
+        return -1;
+    }
+
     fdt_pack(gen_fdt);
 
     return 0;
