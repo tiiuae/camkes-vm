@@ -137,6 +137,11 @@ seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
 #endif
 
+static int is_driver_vm(unsigned long linux_ram_base)
+{
+    return linux_ram_base != 0x48000000;
+}
+
 int get_crossvm_irq_num(void)
 {
     return free_plat_interrupts[0];
@@ -822,9 +827,14 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         }
     }
 
-    err = fdt_generate_usb_node(gen_fdt);
-    if (err) {
-        return -1;
+    if (is_driver_vm(linux_ram_base)) {
+        ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
+
+        err = fdt_generate_usb_node(gen_fdt);
+        if (err)
+            return -1;
+    } else {
+        ZF_LOGI("Not a driver-vm.. skip adding usb@1,0 node");
     }
 
     fdt_pack(gen_fdt);
