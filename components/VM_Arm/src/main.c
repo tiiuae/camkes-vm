@@ -779,6 +779,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         }
     }
 
+#ifdef CONFIG_VM_VIRTIO_QEMU
     if (is_driver_vm(linux_ram_base)) {
         ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
 
@@ -788,6 +789,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     } else {
         ZF_LOGI("Not a driver-vm.. skip adding usb@1,0 node");
     }
+#endif
 
     fdt_pack(gen_fdt);
 
