@@ -133,10 +133,7 @@ seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
 #endif
 
-static int is_driver_vm(unsigned long linux_ram_base)
-{
-    return linux_ram_base != 0x48000000;
-}
+int is_driver_vm(unsigned long linux_ram_base);
 
 int get_crossvm_irq_num(void)
 {
@@ -1049,9 +1046,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
     return FAULT_ERROR;
 }
 
-void WEAK qemu_initialize_semaphores(vm_t *vm);
-
-void WEAK wait_for_host_qemu(void)
+void WEAK hook_pre_load_linux(vm_t *vm)
 {
 }
 
@@ -1153,28 +1148,7 @@ int main_continued(void)
         return -1;
     }
 
-#if CONFIG_VM_VIRTIO_QEMU
-    {
-        extern void *ctrl;
-        memset(((char *)ctrl) + 3072, 0, 4 * sizeof(uint32_t));
-    }
-
-    /* load_linux() eventually calls fdt_generate_vpci_node(), which
-     * will block unless QEMU is already running in the driver VM.
-     * Therefore we will need to listen to start signal here before
-     * load_linux().
-     */
-
-    if (qemu_initialize_semaphores) {
-        qemu_initialize_semaphores(&vm);
-    }
-
-    if (linux_ram_base == 0x48000000) {
-        ZF_LOGI("waiting for driver QEMU");
-        wait_for_host_qemu();
-        ZF_LOGI("driver QEMU up, continuing");
-    }
-#endif
+    hook_pre_load_linux(&vm);
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", linux_image_config.linux_name, linux_image_config.dtb_name);
