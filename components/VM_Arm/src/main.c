@@ -752,8 +752,9 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         return -1;
     }
 
+    vm_ram_register_at(vm, linux_ram_base + linux_ram_size, linux_ram_size, true);
     /* generate a memory node (linux_ram_base and linux_ram_size) */
-    err = fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size);
+    err = fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size + linux_ram_size);
     if (err) {
         return -1;
     }
