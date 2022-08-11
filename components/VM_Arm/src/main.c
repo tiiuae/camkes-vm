@@ -116,6 +116,11 @@ struct ps_io_ops _io_ops;
 
 static jmp_buf restart_jmp_buf;
 
+extern const int __attribute__((weak)) tracebuffer_base;
+extern const int __attribute__((weak)) tracebuffer_size;
+extern const int __attribute__((weak)) ramoops_base;
+extern const int __attribute__((weak)) ramoops_size;
+
 void camkes_make_simple(simple_t *simple);
 
 int WEAK camkes_dtb_untyped_count();
@@ -843,6 +848,24 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         if (err) {
             return -1;
         }
+
+        if (&tracebuffer_base && &tracebuffer_size && tracebuffer_base && tracebuffer_size) {
+            ZF_LOGE("Trying to add sel4 tracebuffer node: 0x%lx@0x%lx", tracebuffer_size, tracebuffer_base);
+
+            err = fdt_generate_sel4_tracebuffer_node(gen_fdt, tracebuffer_base, tracebuffer_size);
+            if (err) {
+                return -1;
+            }
+        }
+
+        if (&ramoops_base && &ramoops_size && ramoops_base && ramoops_size) {
+            ZF_LOGE("Trying to add ramoops node: 0x%lx@0x%lx", ramoops_size, ramoops_base);
+
+            err = fdt_generate_ramoops_node(gen_fdt, ramoops_base, ramoops_size);
+            if (err) {
+                return -1;
+            }
+        }
     } else {
         ZF_LOGI("Not a driver-vm.. skip adding usb@1,0 node");
     }
@@ -1182,6 +1205,7 @@ static int main_continued(void)
     assert(!err);
     err = vm_register_notification_callback(&vm, handle_async_event, NULL);
     assert(!err);
+
 #ifdef CONFIG_TK1_SMMU
     /* install any iospaces */
     int iospace_caps;
