@@ -6,7 +6,6 @@
 
 #pragma once
 
-
 /**
 * generate a "memory" node
 * @param fdt
@@ -15,6 +14,24 @@
 * @return -1 on error, 0 otherwise
 */
 int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size);
+
+/**
+* generate a "ramoops" node
+* @param fdt
+* @param base, the base of the memory region
+* @param size, the size of the memory region
+* @return -1 on error, 0 otherwise
+*/
+int fdt_generate_ramoops_node(void *fdt, unsigned long base, size_t size);
+
+/**
+* generate a "sel4_tracebuffer" node
+* @param fdt
+* @param base, the base of the memory region
+* @param size, the size of the memory region
+* @return -1 on error, 0 otherwise
+*/
+int fdt_generate_sel4_tracebuffer_node(void *fdt, unsigned long base, size_t size);
 
 /**
 * generate a "chosen" node
