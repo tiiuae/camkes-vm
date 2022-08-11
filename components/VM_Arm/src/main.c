@@ -783,6 +783,32 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         err = fdt_generate_usb_node(gen_fdt);
         if (err)
             return -1;
+
+#define ADD_RAMOOPS_NODE  0
+#define ADD_SEL_LOGBUFFER 1
+
+#if ADD_SEL_LOGBUFFER
+	const unsigned long tracebuffer_base = 0x08800000;
+	const size_t tracebuffer_size = 0x200000;
+
+	ZF_LOGE("Trying to add sel4 tracebuffer node: 0x%lx@0x%lx", tracebuffer_size, tracebuffer_base);
+	err = fdt_generate_sel4_tracebuffer_node(gen_fdt, tracebuffer_base, tracebuffer_size);
+	if (err) {
+		return -1;
+	}
+#endif // ADD_SEL_LOGBUFFER
+
+#if ADD_RAMOOPS_NODE
+	const unsigned long ramoops_base = 0x08000000;
+	const size_t ramoops_size = 0x200000;
+
+	ZF_LOGE("Trying to add ramoops node: 0x%lx@0x%lx", ramoops_size, ramoops_base);
+	err = fdt_generate_ramoops_node(gen_fdt, ramoops_base, ramoops_size);
+	if (err) {
+		return -1;
+	}
+#endif // ADD_RAMOOPS_NODE
+
     } else {
         ZF_LOGI("Not a driver-vm.. skip adding usb@1,0 node");
     }
@@ -1099,6 +1125,7 @@ int main_continued(void)
     assert(!err);
     err = vm_register_notification_callback(&vm, handle_async_event, NULL);
     assert(!err);
+
 #ifdef CONFIG_TK1_SMMU
     /* install any iospaces */
     int iospace_caps;

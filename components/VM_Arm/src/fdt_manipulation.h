@@ -15,6 +15,8 @@
 * @return -1 on error, 0 otherwise
 */
 int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size);
+int fdt_generate_ramoops_node(void *fdt, unsigned long base, size_t size);
+int fdt_generate_sel4_tracebuffer_node(void *fdt, unsigned long base, size_t size);
 
 /**
 * generate a "chosen" node
