@@ -68,6 +68,7 @@
 #include <fdtgen.h>
 #include "fdt_manipulation.h"
 
+
 /* Do - Include prototypes to surpress compiler warnings
  * TODO: Add these to a template header */
 seL4_CPtr notification_ready_notification(void);
@@ -133,10 +134,14 @@ seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
 #endif
 
+/*
 static int is_driver_vm(unsigned long linux_ram_base)
 {
     return linux_ram_base != 0x48000000;
 }
+*/
+
+extern const int vmid;
 
 int get_crossvm_irq_num(void)
 {
@@ -780,7 +785,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     }
 
 #ifdef CONFIG_VM_VIRTIO_QEMU
-    if (is_driver_vm(linux_ram_base)) {
+    if (vmid == 0) {
         ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
 
         err = fdt_generate_usb_node(gen_fdt);
@@ -826,7 +831,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     /* Attempt to load initrd if provided */
     guest_image_t initrd_image;
 #ifdef CONFIG_VM_VIRTIO_QEMU
-    if (config_set(CONFIG_VM_INITRD_FILE) && linux_ram_base == 0x48000000) {
+    if (config_set(CONFIG_VM_INITRD_FILE) && vmid != 0) {
 #else
     if (config_set(CONFIG_VM_INITRD_FILE)) {
 #endif
@@ -1169,7 +1174,7 @@ int main_continued(void)
         qemu_initialize_semaphores(&vm);
     }
 
-    if (linux_ram_base == 0x48000000) {
+    if (vmid != 0) {
         ZF_LOGI("waiting for driver QEMU");
         wait_for_host_qemu();
         ZF_LOGI("driver QEMU up, continuing");
