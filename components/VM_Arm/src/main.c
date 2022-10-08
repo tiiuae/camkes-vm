@@ -98,7 +98,8 @@ simple_t _simple;
 vspace_t _vspace;
 sel4utils_alloc_data_t _alloc_data;
 allocman_t *allocman;
-static char allocator_mempool[83886080];
+#define ALLOCATOR_MEMPOOL_SZ ((size_t)80 * 1024 * 1024) /* 80 MB*/
+static char allocator_mempool[ALLOCATOR_MEMPOOL_SZ];
 seL4_CPtr _fault_endpoint;
 irq_server_t *_irq_server;
 
@@ -444,7 +445,7 @@ static int vmm_init(void)
                    simple_get_cnode_size_bits(simple),
                    simple_last_valid_cap(simple) + 1 + num_extra_frame_caps,
                    BIT(simple_get_cnode_size_bits(simple)),
-                   sizeof(allocator_mempool), allocator_mempool
+                   ALLOCATOR_MEMPOOL_SZ, allocator_mempool
                );
     assert(allocman);
 
