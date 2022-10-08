@@ -162,7 +162,7 @@ static int _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor 
     vka = &_vka;
 
     /* Create a frame */
-    frame = vka_alloc_frame_leaky(vka, 12);
+    frame = vka_alloc_frame_leaky(vka, seL4_PageBits);
     assert(frame);
     if (!frame) {
         return -1;
@@ -200,11 +200,11 @@ static int _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor 
     dma_desc->vaddr = _vaddr;
     dma_desc->paddr = getaddr_ret.paddr;
     dma_desc->cached = 0;
-    dma_desc->size_bits = 12;
+    dma_desc->size_bits = seL4_PageBits;
     dma_desc->alloc_cookie = (void *)frame;
     dma_desc->cookie = NULL;
     /* Advance the virtual address marker */
-    _vaddr += BIT(12);
+    _vaddr += seL4_PageBits;
     return 0;
 }
 
@@ -962,10 +962,10 @@ static int alloc_vm_device_cap(uintptr_t addr, vm_t *vm, vm_frame_t *frame_resul
         return -1;
     }
     seL4_Word cookie;
-    err = vka_utspace_alloc_at(vm->vka, &frame, kobject_get_type(KOBJECT_FRAME, 12), 12, addr, &cookie);
+    err = vka_utspace_alloc_at(vm->vka, &frame, kobject_get_type(KOBJECT_FRAME, seL4_PageBits), seL4_PageBits, addr, &cookie);
     if (err) {
         ZF_LOGE("Grabbing the entire cap for device memory");
-        err = simple_get_frame_cap(vm->simple, (void *)addr, 12, &frame);
+        err = simple_get_frame_cap(vm->simple, (void *)addr, seL4_PageBits, &frame);
         if (err) {
             ZF_LOGE("Failed to grab the entire cap");
             return -1;
@@ -983,7 +983,7 @@ static int alloc_vm_ram_cap(uintptr_t addr, vm_t *vm, vm_frame_t *frame_result)
     int err;
     cspacepath_t frame;
     vka_object_t frame_obj;
-    err = vka_alloc_frame_maybe_device(vm->vka, 12, true, &frame_obj);
+    err = vka_alloc_frame_maybe_device(vm->vka, seL4_PageBits, true, &frame_obj);
     if (err) {
         ZF_LOGF("Failed vka_alloc_frame_maybe_device");
         return -1;
@@ -999,7 +999,7 @@ static int alloc_vm_ram_cap(uintptr_t addr, vm_t *vm, vm_frame_t *frame_result)
 static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie)
 {
     int err;
-    uintptr_t paddr = addr & ~0xfff;
+    uintptr_t paddr = PAGE_ALIGN(addr, SIZE_BITS_TO_BYTES(seL4_PageBits));
     vm_frame_t frame_result = { seL4_CapNull, seL4_NoRights, 0, 0 };
     vm_t *vm = (vm_t *)cookie;
     /* Attempt allocating device memory */
@@ -1029,7 +1029,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                                                    uintptr_t paddr, size_t len, void *cookie)
 {
 #ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
-    uintptr_t addr = paddr & ~0xfff;
+    uintptr_t addr = PAGE_ALIGN(paddr, SIZE_BITS_TO_BYTES(seL4_PageBits));
     int mapped;
     int rc;
     vm_memory_reservation_t *reservation;
@@ -1043,7 +1043,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                 return rc;
             }
         }
-        reservation = vm_reserve_memory_at(vm, addr, 0x1000,
+        reservation = vm_reserve_memory_at(vm, addr, SIZE_BITS_TO_BYTES(seL4_PageBits),
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
         if (!mapped) {
