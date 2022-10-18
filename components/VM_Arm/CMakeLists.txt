@@ -137,6 +137,14 @@ config_option(
     OFF
 )
 
+config_option(
+    ArmVMCamkesMemoryDebug 
+    ARM_VM_CAMKES_MEMORY_DEBUG
+    "Include additional debug printing to aid debugging of CAmkES stage-2 memory mapping"
+    DEFAULT
+    OFF
+)
+
 add_config_library(arm_vm "${configure_string}")
 
 DeclareCAmkESARMVM(VM)
