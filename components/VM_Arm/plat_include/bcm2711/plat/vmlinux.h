@@ -10,7 +10,7 @@
  * section 6.3.   GIC-400: SPI IDs start from 32
  */
 #define IRQ_SPI_OFFSET 32
-#define GIC_IRQ_PHANDLE 0x01
+#define GIC_NODE_PATH "/soc/interrupt-controller@40041000"
 
 static const int linux_pt_irqs[] = {};
 
