@@ -105,6 +105,7 @@ allocman_t *allocman;
 #define ALLOCATOR_MEMPOOL_SZ ((size_t)80 * 1024 * 1024) /* 80 MB*/
 static char allocator_mempool[ALLOCATOR_MEMPOOL_SZ];
 seL4_CPtr _fault_endpoint;
+seL4_CPtr guest_endpoint;
 irq_server_t *_irq_server;
 
 vmm_pci_space_t *pci;
@@ -422,6 +423,7 @@ static int camkes_vm_utspace_alloc_at(void *data, const cspacepath_t *dest, seL4
 static int vmm_init(void)
 {
     vka_object_t fault_ep_obj;
+    vka_object_t guest_ep_obj;
     vka_t *vka;
     simple_t *simple;
     vspace_t *vspace;
@@ -431,6 +433,7 @@ static int vmm_init(void)
     vspace = &_vspace;
     simple = &_simple;
     fault_ep_obj.cptr = 0;
+    guest_ep_obj.cptr = 0;
 
     /* Camkes adds nothing to our address space, so this array is empty */
     void *existing_frames[] = {
@@ -531,6 +534,11 @@ static int vmm_init(void)
     err = vka_alloc_endpoint(vka, &fault_ep_obj);
     assert(!err);
     _fault_endpoint = fault_ep_obj.cptr;
+
+    /* Allocate an endpoint that guest can listen using one of its vCPUs */
+    err = vka_alloc_endpoint(vka, &guest_ep_obj);
+    assert(!err);
+    guest_endpoint = guest_ep_obj.cptr;
 
     err = sel4platsupport_new_malloc_ops(&_io_ops.malloc_ops);
     assert(!err);
@@ -1122,7 +1130,7 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    err = vm_init(&vm, &_vka, &_simple, _vspace, &_io_ops, _fault_endpoint, get_instance_name());
+    err = vm_init(&vm, &_vka, &_simple, _vspace, &_io_ops, _fault_endpoint, guest_endpoint, get_instance_name());
     assert(!err);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
