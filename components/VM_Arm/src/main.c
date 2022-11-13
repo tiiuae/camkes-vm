@@ -1135,7 +1135,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                 return rc;
             }
         }
-        reservation = vm_reserve_memory_at(vm, addr, PAGE_SIZE_4K,
+        reservation = vm_reserve_memory_at(vm, addr, SIZE_BITS_TO_BYTES(seL4_PageBits),
                                            handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
         if (!mapped) {
