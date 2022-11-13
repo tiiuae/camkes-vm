@@ -850,7 +850,8 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         }
     }
 
-#ifdef CONFIG_VM_VIRTIO_QEMU
+#if 0
+//#ifdef CONFIG_VM_VIRTIO_QEMU
     if (vmid == 0) {
         ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
 
