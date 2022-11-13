@@ -485,7 +485,7 @@ static int vmm_init(void)
             utType = ALLOCMAN_UT_DEV_MEM;
         }
 #ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-        ZF_LOGV("Adding simple untyped (%d) to allocman: cap = %ld, size = 0x%x, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
+        ZF_LOGV("Adding simple untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
 #endif
         err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
         assert(!err);
@@ -504,7 +504,7 @@ static int vmm_init(void)
                 utType = ALLOCMAN_UT_DEV_MEM;
             }
 #ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-            ZF_LOGV("Adding CAmkES untyped (%d) to allocman: cap = %ld, size = 0x%x, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
+            ZF_LOGV("Adding CAmkES untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
 #endif
             err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
             assert(!err);
