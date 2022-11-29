@@ -899,11 +899,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
     /* Attempt to load initrd if provided */
     guest_image_t initrd_image;
-#ifdef CONFIG_VM_VIRTIO_QEMU
-    if (config_set(CONFIG_VM_INITRD_FILE) && vmid != 0) {
-#else
-    if (config_set(CONFIG_VM_INITRD_FILE)) {
-#endif
+    if (config_set(CONFIG_VM_INITRD_FILE) && vmid == 0) {
         err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
         void *initrd = (void *)initrd_image.load_paddr;
         if (!initrd || err) {
