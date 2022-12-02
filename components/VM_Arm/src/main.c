@@ -142,14 +142,9 @@ seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
 #endif
 
-/*
-static int is_driver_vm(unsigned long linux_ram_base)
-{
-    return linux_ram_base != 0x48000000;
-}
-*/
-
+#ifdef CONFIG_VM_VIRTIO_QEMU
 extern const int vmid;
+#endif
 
 int get_crossvm_irq_num(void)
 {
@@ -899,7 +894,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
     /* Attempt to load initrd if provided */
     guest_image_t initrd_image;
-    if (config_set(CONFIG_VM_INITRD_FILE) && vmid == 0) {
+    if (config_set(CONFIG_VM_INITRD_FILE) && strlen(initrd_name)) {
         err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
         void *initrd = (void *)initrd_image.load_paddr;
         if (!initrd || err) {
