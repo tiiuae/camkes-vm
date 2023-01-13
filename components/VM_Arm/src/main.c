@@ -468,7 +468,7 @@ static int vmm_init(void)
     const char *uttypes[3] = {
         [ALLOCMAN_UT_KERNEL]  = "ALLOCMAN_UT_KERNEL",
         [ALLOCMAN_UT_DEV]     = "ALLOCMAN_UT_DEV",
-        [ALLOCMAN_UT_DEV_MEM] = "ALLOCMAN_UT_DEV_MEM" 
+        [ALLOCMAN_UT_DEV_MEM] = "ALLOCMAN_UT_DEV_MEM"
     };
 #endif
 
@@ -485,7 +485,8 @@ static int vmm_init(void)
             utType = ALLOCMAN_UT_DEV_MEM;
         }
 #ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-        ZF_LOGV("Adding simple untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
+        ZF_LOGV("Adding simple untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size),
+                (void *) paddr, uttypes[utType]);
 #endif
         err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
         assert(!err);
@@ -504,7 +505,8 @@ static int vmm_init(void)
                 utType = ALLOCMAN_UT_DEV_MEM;
             }
 #ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-            ZF_LOGV("Adding CAmkES untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size), (void *) paddr, uttypes[utType]);
+            ZF_LOGV("Adding CAmkES untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size),
+                    (void *) paddr, uttypes[utType]);
 #endif
             err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
             assert(!err);
@@ -855,8 +857,9 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         ZF_LOGI("Trying to add usb@1,0 node for a driver-vm");
 
         err = fdt_generate_usb_node(gen_fdt);
-        if (err)
+        if (err) {
             return -1;
+        }
 
         if (&tracebuffer_base && &tracebuffer_size && tracebuffer_base && tracebuffer_size) {
             ZF_LOGE("Trying to add sel4 tracebuffer node: 0x%lx@0x%lx", tracebuffer_size, tracebuffer_base);
@@ -1129,7 +1132,8 @@ static memory_fault_result_t handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t
     return FAULT_ERROR;
 }
 
-memory_fault_result_t WEAK external_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t paddr, size_t len, void *cookie);
+memory_fault_result_t WEAK external_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t paddr, size_t len,
+                                                   void *cookie);
 
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
                                                    uintptr_t paddr, size_t len, void *cookie)

@@ -129,53 +129,54 @@ int fdt_generate_usb_node(void *fdt)
     int address_cells = fdt_address_cells(fdt, root_offset);
     int size_cells = fdt_size_cells(fdt, root_offset);
 
-    if (root_offset <= 0)
-       ZF_LOGE("root_offset: %d", root_offset);
+    if (root_offset <= 0) {
+        ZF_LOGE("root_offset: %d", root_offset);
+    }
 
     int this = fdt_add_subnode(fdt, root_offset, "usb@0,0");
     if (this < 0) {
-       ZF_LOGE("Can't add usb@1,0 subnode: %d", this);
-       return this;
+        ZF_LOGE("Can't add usb@1,0 subnode: %d", this);
+        return this;
     }
 
     int err = fdt_appendprop_u32(fdt, this, "resets", 0x2d);
     if (err) {
-       ZF_LOGE("Can't append resets property: %d", this);
+        ZF_LOGE("Can't append resets property: %d", this);
         return err;
     }
     err = fdt_appendprop_u32(fdt, this, "resets", 0x00);
     if (err) {
-       ZF_LOGE("Can't append resets property: %d", this);
+        ZF_LOGE("Can't append resets property: %d", this);
         return err;
     }
 
     err = fdt_appendprop_u32(fdt, this, "reg", 0x10000);
     if (err) {
-       ZF_LOGE("Can't append reg property: %d", this);
+        ZF_LOGE("Can't append reg property: %d", this);
         return err;
     }
 
     err = fdt_appendprop_u32(fdt, this, "reg", 0x00);
     if (err) {
-       ZF_LOGE("Can't append reg property: %d", this);
+        ZF_LOGE("Can't append reg property: %d", this);
         return err;
     }
 
     err = fdt_appendprop_u32(fdt, this, "reg", 0x00);
     if (err) {
-       ZF_LOGE("Can't append reg property: %d", this);
+        ZF_LOGE("Can't append reg property: %d", this);
         return err;
     }
 
     err = fdt_appendprop_u32(fdt, this, "reg", 0x00);
     if (err) {
-       ZF_LOGE("Can't append reg property: %d", this);
+        ZF_LOGE("Can't append reg property: %d", this);
         return err;
     }
 
     err = fdt_appendprop_u32(fdt, this, "reg", 0x00);
     if (err) {
-       ZF_LOGE("Can't append reg property: %d", this);
+        ZF_LOGE("Can't append reg property: %d", this);
         return err;
     }
 
