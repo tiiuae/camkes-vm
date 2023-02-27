@@ -1165,13 +1165,15 @@ int main_continued(void)
     vm_vcpu_t *vm_vcpu = vm.vcpus[BOOT_VCPU];
     err = vm_assign_vcpu_target(vm_vcpu, 0);
     if (err) {
-        return -1;
+        ZF_LOGE("vm_assign_vcpu_target() failed (%d)", err);
+        return err;
     }
 
     /* Route IRQs */
     err = route_irqs(vm_vcpu, _irq_server);
     if (err) {
-        return -1;
+        ZF_LOGE("route_irqs() failed (%d)", err);
+        return err;
     }
 
     /* Load system images */
@@ -1179,13 +1181,13 @@ int main_continued(void)
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();
-        return -1;
+        return err;
     }
 
     err = vcpu_start(vm_vcpu);
     if (err) {
         ZF_LOGE("Failed to start Boot VCPU");
-        return -1;
+        return err;
     }
 
     while (1) {
@@ -1193,7 +1195,7 @@ int main_continued(void)
         if (err) {
             ZF_LOGE("Failed to run VM");
             seL4_DebugHalt();
-            return -1;
+            return err;
         }
     }
 
