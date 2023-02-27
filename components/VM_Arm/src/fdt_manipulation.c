@@ -1,5 +1,6 @@
 /*
  * Copyright 2019, Data61, CSIRO (ABN 41 687 119 230)
+ * Copyright 2023, Technology Innovation Institute
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -9,7 +10,8 @@
 #include <libfdt.h>
 #include <utils/util.h>
 
-static int append_prop_with_cells(void *fdt, int offset,  uint64_t val, int num_cells, const char *name)
+int fdt_appendprop_uint(void *fdt, int offset, const char *name, uint64_t val,
+                        int num_cells)
 {
     int err;
     if (num_cells == 2) {
@@ -17,7 +19,7 @@ static int append_prop_with_cells(void *fdt, int offset,  uint64_t val, int num_
     } else if (num_cells == 1) {
         err = fdt_appendprop_u32(fdt, offset, name, val);
     } else {
-        ZF_LOGF("non-supported arch");
+        ZF_LOGF("number of cells (%d) not supported", num_cells);
     }
 
     return err;
@@ -40,11 +42,11 @@ int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size)
     if (err) {
         return err;
     }
-    err = append_prop_with_cells(fdt, this, base, address_cells, "reg");
+    err = fdt_appendprop_uint(fdt, this, "reg", base, address_cells);
     if (err) {
         return err;
     }
-    err = append_prop_with_cells(fdt, this, size, size_cells, "reg");
+    err = fdt_appendprop_uint(fdt, this, "reg", size, size_cells);
     if (err) {
         return err;
     }
@@ -102,11 +104,13 @@ int fdt_append_chosen_node_with_initrd_info(void *fdt, unsigned long base, size_
     int root_offset = fdt_path_offset(fdt, "/");
     int address_cells = fdt_address_cells(fdt, root_offset);
     int this = fdt_path_offset(fdt, "/chosen");
-    int err = append_prop_with_cells(fdt, this, base, address_cells, "linux,initrd-start");
+    int err = fdt_appendprop_uint(fdt, this, "linux,initrd-start", base,
+                                  address_cells);
     if (err) {
         return err;
     }
-    err = append_prop_with_cells(fdt, this, base + size, address_cells, "linux,initrd-end");
+    err = fdt_appendprop_uint(fdt, this, "linux,initrd-end", base + size,
+                              address_cells);
     if (err) {
         return err;
     }
