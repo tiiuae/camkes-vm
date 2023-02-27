@@ -19,6 +19,14 @@ config_option(
     ON
 )
 
+config_option(
+    VmNoInitRam
+    VM_NO_INIT_RAM
+    "Disable init_ram module"
+    DEFAULT
+    OFF
+)
+
 config_option(VmEmmc2NoDMA VM_EMMC2_NODMA "SD access control to prevent DMA \
     Installs SD card into the VM with read only access. Write access is \
     trapped and emulated to ensure that DMA is not used." DEFAULT OFF)
