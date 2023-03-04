@@ -117,8 +117,6 @@ uintptr_t linux_ram_paddr_base;
 size_t linux_ram_size;
 ptrdiff_t linux_ram_offset;
 uintptr_t dtb_addr;
-size_t initrd_max_size;
-uintptr_t initrd_addr;
 
 void camkes_make_simple(simple_t *simple);
 
@@ -720,8 +718,8 @@ static int route_irqs(vm_vcpu_t *vcpu, irq_server_t *irq_server)
     return 0;
 }
 
-static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
-                        int num_paths)
+static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size,
+                        char **paths, int num_paths)
 {
     int err = 0;
 
@@ -795,12 +793,11 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
         return -1;
     }
 
-    if (config_set(CONFIG_VM_INITRD_FILE)) {
-        err = fdt_generate_initrd_info(gen_fdt, initrd_addr, initrd_size);
-        if (err) {
-            ZF_LOGE("Couldn't generate chosen_node_with_initrd_info (%d)\n", err);
-            return -1;
-        }
+    /* generate initrd info inside the chosen node (if initrd exists) */
+    err = fdt_generate_initrd_info(gen_fdt);
+    if (err) {
+        ZF_LOGE("Couldn't generate initrd info (%d)\n", err);
+        return -1;
     }
 
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
@@ -833,7 +830,7 @@ static int load_generated_dtb(vm_t *vm, uintptr_t paddr, void *addr, size_t size
     return 0;
 }
 
-static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
+static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name)
 {
     seL4_Word entry;
     seL4_Word dtb;
@@ -854,17 +851,6 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     entry = kernel_image_info.kernel_image.load_paddr;
     if (!entry || err) {
         return -1;
-    }
-
-    /* Attempt to load initrd if provided */
-    guest_image_t initrd_image;
-    if (config_set(CONFIG_VM_INITRD_FILE)) {
-        printf("Loading Initrd: \'%s\'\n", initrd_name);
-        err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
-        void *initrd = (void *)initrd_image.load_paddr;
-        if (!initrd || err) {
-            return -1;
-        }
     }
 
     err = load_images(vm);
@@ -904,7 +890,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
             fdt_ori = (void *)ps_io_fdt_get(&_io_ops.io_fdt);
         }
 
-        err = generate_fdt(vm, fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
+        err = generate_fdt(vm, fdt_ori, gen_fdt, size_gen, paths, num_paths);
         if (err) {
             ZF_LOGE("Failed to generate a fdt");
             return -1;
@@ -942,8 +928,6 @@ void parse_camkes_linux_attributes(void)
     linux_ram_size = strtoul(linux_address_config.linux_ram_size, NULL, 0);
     linux_ram_offset = strtoul(linux_address_config.linux_ram_offset, NULL, 0);
     dtb_addr = strtoul(linux_address_config.dtb_addr, NULL, 0);
-    initrd_max_size = strtoul(linux_address_config.initrd_max_size, NULL, 0);
-    initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
 /* Async event handling registration implementation */
@@ -1196,7 +1180,7 @@ int main_continued(void)
     }
 
     /* Load system images */
-    err = load_linux(&vm, linux_image_config.linux_name, linux_image_config.dtb_name, linux_image_config.initrd_name);
+    err = load_linux(&vm, linux_image_config.linux_name, linux_image_config.dtb_name);
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();

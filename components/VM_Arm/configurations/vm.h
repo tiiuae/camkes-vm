@@ -77,14 +77,11 @@
         string linux_ram_size; \
         string linux_ram_offset; \
         string dtb_addr; \
-        string initrd_max_size; \
-        string initrd_addr; \
     } linux_address_config; \
     attribute string images; \
     attribute { \
         string linux_name = "linux"; \
         string dtb_name = "linux-dtb"; \
-        string initrd_name = "linux-initrd"; \
         string linux_bootcmdline = ""; \
         string linux_stdout = ""; \
         string dtb_base_name = ""; \

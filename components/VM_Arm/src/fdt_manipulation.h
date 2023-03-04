@@ -29,8 +29,6 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
 /**
 * generate initrd info inside the "chosen" node
 * @param fdt
-* @param base, the base of the initrd image
-* @param size, the size of the initrd image
 * @return -1 on error, 0 otherwise
 */
-int fdt_generate_initrd_info(void *fdt, uintptr_t base, size_t size);
+int fdt_generate_initrd_info(void *fdt);

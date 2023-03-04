@@ -4,8 +4,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <vm_image.h>
+
 #include <libfdt.h>
 #include <utils/util.h>
+
+extern const vm_image_t WEAK vm_image_initrd;
 
 static int fdt_appendprop_uint(void *fdt, int offset, const char *name,
                                uint64_t val, int num_cells)
@@ -93,21 +97,28 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
     return 0;
 }
 
-int fdt_generate_initrd_info(void *fdt, uintptr_t base, size_t size)
+int fdt_generate_initrd_info(void *fdt)
 {
+    if (!&vm_image_initrd) {
+        return 0;
+    }
+
     int root_offset = fdt_path_offset(fdt, "/");
     int address_cells = fdt_address_cells(fdt, root_offset);
     int this = fdt_path_offset(fdt, "/chosen");
-    int err = fdt_appendprop_uint(fdt, this, "linux,initrd-start", base,
-                                  address_cells);
+    int err = fdt_appendprop_uint(fdt, this, "linux,initrd-start",
+                                  vm_image_initrd.addr, address_cells);
     if (err) {
         return err;
     }
-    err = fdt_appendprop_uint(fdt, this, "linux,initrd-end", base + size,
+    err = fdt_appendprop_uint(fdt, this, "linux,initrd-end",
+                              vm_image_initrd.addr + vm_image_initrd.guest_image.size,
                               address_cells);
     if (err) {
         return err;
     }
+
+    ZF_LOGI("Using initrd @ 0x"PRIxPTR, vm_image_initrd.addr);
 
     return 0;
 }
