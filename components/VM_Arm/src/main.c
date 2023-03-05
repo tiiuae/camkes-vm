@@ -796,7 +796,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     }
 
     if (config_set(CONFIG_VM_INITRD_FILE)) {
-        err = fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
+        err = fdt_generate_initrd_info(gen_fdt, initrd_addr, initrd_size);
         if (err) {
             ZF_LOGE("Couldn't generate chosen_node_with_initrd_info (%d)\n", err);
             return -1;
