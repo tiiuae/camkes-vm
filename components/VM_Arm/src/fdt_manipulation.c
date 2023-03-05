@@ -13,8 +13,8 @@
 
 extern const vm_image_t WEAK vm_image_initrd;
 
-static int fdt_appendprop_uint(void *fdt, int offset, const char *name,
-                               uint64_t val, int num_cells)
+int fdt_appendprop_uint(void *fdt, int offset, const char *name, uint64_t val,
+                        int num_cells)
 {
     int err;
     if (num_cells == 2) {
