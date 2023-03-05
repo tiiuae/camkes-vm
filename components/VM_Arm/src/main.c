@@ -62,6 +62,8 @@
 #include <vmlinux.h>
 #include "fsclient.h"
 
+#include <vm_image.h>
+
 #include <libfdt.h>
 #include <fdtgen.h>
 #include "fdt_manipulation.h"
@@ -863,6 +865,12 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         if (!initrd || err) {
             return -1;
         }
+    }
+
+    err = load_images(vm);
+    if (err) {
+        ZF_LOGE("Loading VM images failed (%d)", err);
+        return err;
     }
 
     if (!config_set(CONFIG_VM_DTB_FILE)) {

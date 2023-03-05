@@ -46,6 +46,7 @@ function(DeclareCAmkESARMVM init_component)
             ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/main.c
             ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/fdt_manipulation.c
             ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/crossvm.c
+            ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/image.c
     )
 
     list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/map_frame_hack.c)
@@ -133,6 +134,7 @@ function(DeclareCAmkESARMVM init_component)
         ${VM_COMP_EXTRA_C_FLAGS}
         TEMPLATE_SOURCES
         seL4AllocatorMempool.template.c
+        images.template.c
         TEMPLATE_HEADERS
         seL4AllocatorMempool.template.h
     )

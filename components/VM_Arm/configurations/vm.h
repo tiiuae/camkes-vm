@@ -47,6 +47,10 @@
 #define DEF_KERNELARMPLATFORM_EXYNOS5410
 #endif
 
+#define VM_IMAGES(__images__) __images__
+#define VM_IMAGE(id, filename, type, addr, max_size) \
+    #id ":" filename ":" type ":" VAR_STRINGIZE(addr) ":" VAR_STRINGIZE(max_size) " "
+
 #define VM_INIT_DEF() \
     control; \
     uses FileServerInterface fs; \
@@ -76,6 +80,7 @@
         string initrd_max_size; \
         string initrd_addr; \
     } linux_address_config; \
+    attribute string images; \
     attribute { \
         string linux_name = "linux"; \
         string dtb_name = "linux-dtb"; \
