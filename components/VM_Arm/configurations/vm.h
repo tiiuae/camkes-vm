@@ -69,6 +69,7 @@
     emits HaveNotification notification_ready_connector; \
     maybe uses VMDTBPassthrough dtb_self; \
     provides VMDTBPassthrough dtb; \
+    attribute int configuration_format_version = 0; \
     attribute int base_prio; \
     attribute int num_vcpus = 1; \
     attribute int num_extra_frame_caps; \

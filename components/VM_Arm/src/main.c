@@ -844,7 +844,7 @@ static int load_generated_dtb(vm_t *vm, uintptr_t paddr, void *addr, size_t size
     return 0;
 }
 
-static int load_linux(vm_t *vm, const char *kernel_name)
+static int load_linux_legacy(vm_t *vm, const char *kernel_name)
 {
     seL4_Word entry;
     int err;
@@ -1207,7 +1207,11 @@ int main_continued(void)
     }
 
     /* Load system images */
-    err = load_linux(&vm, linux_image_config.linux_name);
+    if (configuration_format_version == 0) {
+        err = load_linux_legacy(&vm, linux_image_config.linux_name);
+    } else {
+        err = load_linux(&vm);
+    }
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();

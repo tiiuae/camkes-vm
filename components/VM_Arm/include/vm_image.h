@@ -24,4 +24,4 @@ typedef struct {
     guest_image_t guest_image;
 } vm_image_t;
 
-int load_images(vm_t *);
+int load_linux(vm_t *);
