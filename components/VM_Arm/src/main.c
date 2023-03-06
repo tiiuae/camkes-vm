@@ -844,7 +844,103 @@ static int load_generated_dtb(vm_t *vm, uintptr_t paddr, void *addr, size_t size
     return 0;
 }
 
-static int load_linux_legacy(vm_t *vm, const char *kernel_name)
+static int load_linux_legacy(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
+{
+    seL4_Word entry;
+    seL4_Word dtb;
+    int err;
+
+    /* Install devices */
+    err = install_linux_devices(vm);
+    if (err) {
+        printf("Error: Failed to install Linux devices\n");
+        return -1;
+    }
+
+    printf("Loading Kernel: \'%s\'\n", kernel_name);
+
+    /* Load kernel */
+    guest_kernel_image_t kernel_image_info;
+    err = vm_load_guest_kernel(vm, kernel_name, linux_ram_base, 0, &kernel_image_info);
+    entry = kernel_image_info.kernel_image.load_paddr;
+    if (!entry || err) {
+        return -1;
+    }
+
+    /* Attempt to load initrd if provided */
+    guest_image_t initrd_image;
+    if (config_set(CONFIG_VM_INITRD_FILE)) {
+        printf("Loading Initrd: \'%s\'\n", initrd_name);
+        err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
+        void *initrd = (void *)initrd_image.load_paddr;
+        if (!initrd || err) {
+            return -1;
+        }
+    }
+
+    if (!config_set(CONFIG_VM_DTB_FILE)) {
+        void *fdt_ori;
+        void *gen_fdt = linux_gen_dtb_buf;
+        int size_gen = PLAT_LINUX_DTB_SIZE;
+        int num_paths = 0;
+        char **paths = NULL;
+        if (camkes_dtb_get_node_paths) {
+            paths = camkes_dtb_get_node_paths(&num_paths);
+        }
+
+        int dtb_fd = -1;
+
+        /* No point checking the file server if the string is empty! */
+        if ((NULL != linux_image_config.dtb_base_name) &&
+            (linux_image_config.dtb_base_name[0] != '\0')) {
+            dtb_fd = open(linux_image_config.dtb_base_name, 0);
+        }
+
+        /* If dtb_base_name is in the file server, grab it and use it as a base */
+        if (dtb_fd >= 0) {
+            size_t dtb_len = read(dtb_fd, linux_gen_dtb_base_buf, PLAT_LINUX_DTB_SIZE);
+            if (dtb_len <= 0) {
+                return -1;
+            }
+            close(dtb_fd);
+            fdt_ori = (void *)linux_gen_dtb_base_buf;
+        } else {
+            camkes_io_fdt(&(_io_ops.io_fdt));
+            fdt_ori = (void *)ps_io_fdt_get(&_io_ops.io_fdt);
+        }
+
+        err = generate_fdt(vm, fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
+        if (err) {
+            ZF_LOGE("Failed to generate a fdt");
+            return -1;
+        }
+        vm_ram_mark_allocated(vm, dtb_addr, size_gen);
+        vm_ram_touch(vm, dtb_addr, size_gen, load_generated_dtb, gen_fdt);
+        printf("Loading Generated DTB\n");
+        dtb = dtb_addr;
+    } else {
+        printf("Loading DTB: \'%s\'\n", dtb_name);
+
+        /* Load device tree */
+        guest_image_t dtb_image;
+        err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
+        dtb = dtb_image.load_paddr;
+        if (!dtb || err) {
+            return -1;
+        }
+    }
+
+    /* Set boot arguments */
+    err = vcpu_set_bootargs(vm->vcpus[BOOT_VCPU], entry, MACH_TYPE, dtb);
+    if (err) {
+        printf("Error: Failed to set boot arguments\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int load_linux(vm_t *vm, const char *kernel_name)
 {
     seL4_Word entry;
     int err;
@@ -1208,7 +1304,9 @@ int main_continued(void)
 
     /* Load system images */
     if (configuration_format_version == 0) {
-        err = load_linux_legacy(&vm, linux_image_config.linux_name);
+        err = load_linux_legacy(&vm, linux_image_config.linux_name,
+                                linux_image_config.dtb_name,
+                                linux_image_config.initrd_name);
     } else {
         err = load_linux(&vm);
     }
