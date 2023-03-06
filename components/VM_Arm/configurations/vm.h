@@ -86,6 +86,7 @@
         string linux_bootcmdline = ""; \
         string linux_stdout = ""; \
         string dtb_base_name = ""; \
+        int dtb_generate = 1; \
     } linux_image_config; \
     attribute { \
         int send_id; \
