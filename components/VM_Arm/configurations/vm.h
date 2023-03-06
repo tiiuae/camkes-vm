@@ -47,6 +47,8 @@
 #define DEF_KERNELARMPLATFORM_EXYNOS5410
 #endif
 
+#define VM_IMAGE_UNLIMITED_SIZE (~(size_t)0)
+
 #define VM_IMAGES(__images__) __images__
 #define VM_IMAGE(id, filename, type, addr, max_size) \
     #id ":" filename ":" type ":" VAR_STRINGIZE(addr) ":" VAR_STRINGIZE(max_size) " "
@@ -81,7 +83,6 @@
     attribute string images; \
     attribute { \
         string linux_name = "linux"; \
-        string dtb_name = "linux-dtb"; \
         string linux_bootcmdline = ""; \
         string linux_stdout = ""; \
         string dtb_base_name = ""; \

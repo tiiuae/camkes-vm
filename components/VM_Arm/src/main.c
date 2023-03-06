@@ -75,6 +75,8 @@ int camkes_io_fdt(ps_io_fdt_t *io_fdt);
 seL4_CPtr camkes_alloc(seL4_ObjectType type, size_t size, unsigned flags);
 /* Done */
 
+extern const vm_image_t WEAK vm_image_dtb;
+
 extern void *fs_buf;
 int start_extra_frame_caps;
 
@@ -871,7 +873,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name)
         return err;
     }
 
-    if (!config_set(CONFIG_VM_DTB_FILE)) {
+    if (!&vm_image_dtb) {
         void *fdt_ori;
         void *gen_fdt = linux_gen_dtb_buf;
         int size_gen = PLAT_LINUX_DTB_SIZE;
@@ -912,15 +914,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name)
         printf("Loading Generated DTB\n");
         dtb = dtb_addr;
     } else {
-        printf("Loading DTB: \'%s\'\n", dtb_name);
-
-        /* Load device tree */
-        guest_image_t dtb_image;
-        err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
-        dtb = dtb_image.load_paddr;
-        if (!dtb || err) {
-            return -1;
-        }
+        dtb = vm_image_dtb.guest_image.load_paddr;
     }
 
     /* Set boot arguments */
