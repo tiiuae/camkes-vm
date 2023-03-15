@@ -49,7 +49,9 @@ function(DeclareCAmkESARMVM init_component)
     )
 
     list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/map_frame_hack.c)
-    list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/init_ram.c)
+    if(NOT VmNoInitRam)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/init_ram.c)
+    endif()
 
     if(VmVirtUart)
         list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM_Arm/src/modules/vuart_init.c)
