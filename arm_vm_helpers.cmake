@@ -139,7 +139,7 @@ function(DeclareCAmkESARMVM init_component)
         seL4VMParameters.template.h
     )
 
-    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole OR VmVirtioQEMU)
+    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
         DeclareCAmkESComponent(${init_component} LIBS virtioarm vswitch)
     endif()
 
