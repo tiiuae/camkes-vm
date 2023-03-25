@@ -1254,11 +1254,6 @@ static int main_continued(void)
     }
 
 #if CONFIG_VM_VIRTIO_QEMU
-    {
-        extern void *ctrl;
-        memset(((char *)ctrl) + 3072, 0, 4 * sizeof(uint32_t));
-    }
-
     /* load_linux() eventually calls fdt_generate_vpci_node(), which
      * will block unless QEMU is already running in the driver VM.
      * Therefore we will need to listen to start signal here before
