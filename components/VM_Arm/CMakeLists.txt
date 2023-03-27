@@ -67,16 +67,6 @@ config_option(
     OFF
 )
 
-config_option(
-    VmVirtioQEMU
-    VM_VIRTIO_QEMU
-    "Enable virtio QEMU module"
-    DEPENDS
-    "KernelPlatformQEMUArmVirt OR KernelPlatformRpi4;VmPCISupport"
-    DEFAULT
-    OFF
-)
-
 config_choice(
     VmRootfs
     VM_ROOTFS
