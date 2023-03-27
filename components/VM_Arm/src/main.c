@@ -706,6 +706,11 @@ static int route_irqs(vm_vcpu_t *vcpu, irq_server_t *irq_server)
     return 0;
 }
 
+int __attribute__((weak)) fdt_customize(vm_t *vm, void *gen_fdt)
+{
+    return 0;
+}
+
 static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
                         int num_paths)
 {
@@ -805,6 +810,12 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
             ZF_LOGE("Couldn't generate vpci_node (%d)\n", err);
             return -1;
         }
+    }
+
+    err = fdt_customize(vm, gen_fdt);
+    if (err) {
+        ZF_LOGE("fdt_customize() failed (%d)", err);
+        return err;
     }
 
     fdt_pack(gen_fdt);
