@@ -34,12 +34,3 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
 * @return -1 on error, 0 otherwise
 */
 int fdt_append_chosen_node_with_initrd_info(void *fdt, unsigned long base, size_t size);
-
-/**
-* generate a "usb@0,0" sub-node of "pci@0,0"
-* TODO: camkes-tool is not able to pass it from .dts file currently.
-* This can be removed as soon as camkes-tool is fixed.
-* @param fdt
-* @return -1 on error, 0 otherwise
-*/
-int fdt_generate_usb_node(void *fdt);
