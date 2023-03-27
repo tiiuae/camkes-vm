@@ -5,8 +5,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#define ZF_LOG_LEVEL ZF_LOG_INFO
-
 #include <autoconf.h>
 #include <arm_vm/gen_config.h>
 #include <sel4muslcsys/gen_config.h>
