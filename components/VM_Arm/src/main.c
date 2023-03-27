@@ -5,15 +5,11 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#define ZF_LOG_LEVEL ZF_LOG_INFO
+
 #include <autoconf.h>
 #include <arm_vm/gen_config.h>
 #include <sel4muslcsys/gen_config.h>
-
-#ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-#define ZF_LOG_LEVEL ZF_LOG_VERBOSE
-#else
-#define ZF_LOG_LEVEL ZF_LOG_INFO
-#endif
 
 #include <stdio.h>
 #include <assert.h>
@@ -449,14 +445,6 @@ static int vmm_init(void)
     utspace_alloc_at_copy = vka->utspace_alloc_at;
     vka->utspace_alloc_at = camkes_vm_utspace_alloc_at;
 
-#ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-    const char *uttypes[3] = {
-        [ALLOCMAN_UT_KERNEL]  = "ALLOCMAN_UT_KERNEL",
-        [ALLOCMAN_UT_DEV]     = "ALLOCMAN_UT_DEV",
-        [ALLOCMAN_UT_DEV_MEM] = "ALLOCMAN_UT_DEV_MEM"
-    };
-#endif
-
     for (int i = 0; i < simple_get_untyped_count(simple); i++) {
         size_t size;
         uintptr_t paddr;
@@ -469,10 +457,6 @@ static int vmm_init(void)
             paddr >= ram_paddr_base && paddr <= (ram_paddr_base + (ram_size - 1))) {
             utType = ALLOCMAN_UT_DEV_MEM;
         }
-#ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-        ZF_LOGV("Adding simple untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size),
-                (void *) paddr, uttypes[utType]);
-#endif
         err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
         assert(!err);
     }
@@ -489,10 +473,6 @@ static int vmm_init(void)
                 paddr <= (ram_paddr_base + (ram_size - 1))) {
                 utType = ALLOCMAN_UT_DEV_MEM;
             }
-#ifdef CONFIG_ARM_VM_CAMKES_MEMORY_DEBUG
-            ZF_LOGV("Adding CAmkES untyped (%d) to allocman: cap = %ld, size = 0x%lx, paddr = %p, type = %s", i, cap, BIT(size),
-                    (void *) paddr, uttypes[utType]);
-#endif
             err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
             assert(!err);
         }
