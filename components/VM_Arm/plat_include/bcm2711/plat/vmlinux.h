@@ -30,7 +30,7 @@ static const int linux_pt_irqs[] = {};
 static const int free_plat_interrupts[] =  { 72, 73, 74, 75, 76, 77, 78, 79 };
 static const char *plat_keep_devices[] = {
     "/timer",
-    "/soc/interrupt-controller@40041000",
+    GIC_NODE_PATH,
 };
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {};
