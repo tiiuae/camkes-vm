@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <fdt_utils.h>
+
 #include <libfdt.h>
 #include <utils/util.h>
 
-static int fdt_appendprop_uint(void *fdt, int offset, const char *name,
-                               uint64_t val, int num_cells)
+int fdt_appendprop_uint(void *fdt, int offset, const char *name, uint64_t val,
+                        int num_cells)
 {
     int err;
     if (num_cells == 2) {
